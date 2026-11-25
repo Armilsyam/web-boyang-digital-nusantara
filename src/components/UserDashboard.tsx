@@ -632,13 +632,14 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                         </div>
                       )}
 
-                      <a
-                        href={`/api/user/downloads/${prod.id}`}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 py-2.5 text-xs font-bold text-slate-950 hover:brightness-110 transition"
+                      <button
+                        type="button"
+                        onClick={() => api.downloadProductManifest(prod.id)}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 py-2.5 text-xs font-bold text-slate-950 hover:brightness-110 transition cursor-pointer"
                       >
                         <Download className="h-4 w-4" />
                         Unduh Paket Aset & Panduan
-                      </a>
+                      </button>
                     </div>
                   ))}
                 </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { CatalogItemType } from '../types';
+import { isStaticMode } from '../lib/api';
 
 interface FooterProps {
   onNavigateSection: (sectionId: string, filterType?: CatalogItemType | 'ALL') => void;
@@ -85,7 +86,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateSection }) => {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/[0.06] pt-6 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} BOYANG DIGITAL. All rights reserved.</p>
           <p className="font-mono text-[11px]">
-            Built for Production Hosting · Web2 & Web3 Hybrid Architecture
+            {isStaticMode()
+              ? 'GitHub Pages Mode · Interactive Browser Sandbox (LocalStorage)'
+              : 'Built for Production Hosting · Web2 & Web3 Hybrid Architecture'}
           </p>
         </div>
       </div>

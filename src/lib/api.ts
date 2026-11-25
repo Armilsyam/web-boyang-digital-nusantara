@@ -12,6 +12,21 @@ import type {
   ServiceOrderStatus,
   User,
 } from '../types';
+import { staticDemoApi } from './staticDemoApi';
+
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+export function isStaticMode(): boolean {
+  if (API_BASE) return false;
+  if (import.meta.env.VITE_STATIC_MODE === 'true') return true;
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname.endsWith('.github.io')
+  ) {
+    return true;
+  }
+  return false;
+}
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const isFormData = options.body instanceof FormData;
@@ -22,7 +37,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(url, {
+  const res = await fetch(`${API_BASE}${url}`, {
     ...options,
     credentials: 'include',
     headers,
@@ -90,8 +105,7 @@ export interface VerificationResult {
   standard: string;
 }
 
-export const api = {
-  // Auth
+const serverApi = {
   me: () => request<{ user: User | null }>('/api/auth/me'),
   login: (body: { email: string; password: string }) =>
     request<{ user: User; token: string }>('/api/auth/login', {
@@ -127,7 +141,6 @@ export const api = {
   web3Unlink: () =>
     request<{ user: User }>('/api/auth/web3/unlink', { method: 'POST' }),
 
-  // Public Catalog & Payment Config
   getCatalog: (params?: {
     type?: CatalogItemType | 'ALL';
     category?: string;
@@ -163,7 +176,6 @@ export const api = {
   verifyPublicCode: (code: string) =>
     request<VerificationResult>(`/api/verify/${encodeURIComponent(code)}`),
 
-  // Orders & Payments
   createOrder: (body: {
     items: Array<{
       catalogItemId: string;
@@ -193,15 +205,16 @@ export const api = {
       { method: 'POST' }
     ),
 
-  // User Dashboard
   getUserDashboard: () => request<UserDashboardResponse>('/api/user/dashboard'),
   toggleLesson: (courseId: string, lessonId: string) =>
     request<{ enrollment: CourseEnrollment }>(
       `/api/user/enrollments/${courseId}/toggle-lesson`,
       { method: 'POST', body: JSON.stringify({ lessonId }) }
     ),
+  downloadProductManifest: (orderItemId: string) => {
+    window.open(`${API_BASE}/api/user/downloads/${orderItemId}`, '_blank');
+  },
 
-  // Admin Backoffice
   getAdminOverview: () => request<AdminOverviewResponse>('/api/admin/overview'),
   getAdminOrders: (params?: { status?: string; method?: string }) => {
     const q = new URLSearchParams();
@@ -279,3 +292,5 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 };
+
+export const api: typeof serverApi = isStaticMode() ? staticDemoApi : serverApi;
