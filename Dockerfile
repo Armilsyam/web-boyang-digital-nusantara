@@ -13,7 +13,6 @@ ENV DATABASE_PATH=/app/data/boyang-digital.db
 ENV UPLOADS_DIR=/app/data/uploads
 
 RUN mkdir -p /app/data/uploads
-VOLUME ["/app/data"]
 
 EXPOSE 3000
 CMD ["npm", "start"]
